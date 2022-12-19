@@ -1,6 +1,6 @@
-# AltKit
+# SideKit
 
-AltKit allows apps to communicate with AltServers on the same WiFi network and enable features such as JIT compilation.
+SideKit allows apps to communicate with [SideServer mobile](https://github.com/sidestore/sideserver-mobile) on **any** WiFi network and enable various features such as JIT compilation.
 
 ## Installation
 
