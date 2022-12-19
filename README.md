@@ -7,7 +7,7 @@ SideKit allows apps to communicate with [SideServer mobile](https://github.com/S
 To use AltKit in your app, add the following to your `Package.swift` file's dependencies:
 
 ```swift
-.package(url: "https://github.com/rileytestut/AltKit.git", .upToNextMajor(from: "0.0.1")),
+.package(url: "https://github.com/SideStore/SideKit.git", .upToNextMajor(from: "0.0.1")),
 ```
 
 Next, add the SideKit package as a dependency for your target:
