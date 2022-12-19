@@ -1,6 +1,6 @@
 # SideKit
 
-SideKit allows apps to communicate with [SideServer mobile](https://github.com/sidestore/sideserver-mobile) on **any** WiFi network and enable various features such as JIT compilation.
+SideKit allows apps to communicate with [SideServer mobile](https://github.com/SideStore/em_proxy) on **any** WiFi network and enable various features such as JIT compilation.
 
 ## Installation
 
