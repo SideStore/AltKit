@@ -10,21 +10,15 @@ To use AltKit in your app, add the following to your `Package.swift` file's depe
 .package(url: "https://github.com/rileytestut/AltKit.git", .upToNextMajor(from: "0.0.1")),
 ```
 
-Next, add the AltKit package as a dependency for your target:
+Next, add the SideKit package as a dependency for your target:
 
 ```swift
-.product(name: "AltKit", package: "AltKit"),
+.product(name: "SideKit", package: "SideKit),
 ```
 
 Finally, right-click on your app's `Info.plist`, select "Open As > Source Code", then add the following entries:
 
 ```xml
-<key>NSBonjourServices</key>
-<array>
-    <string>_altserver._tcp</string>
-</array>
-<key>NSLocalNetworkUsageDescription</key>
-<string>[Your app] uses the local network to find and communicate with AltServer.</string>
 <key>ALTDeviceID</key>
 <string></string>
 ```
@@ -50,7 +44,7 @@ add_compile_options($<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fPIC>)
 
 ### Swift
 ```swift
-import AltKit
+import SideKit
 
 ServerManager.shared.startDiscovering()
 
@@ -76,7 +70,7 @@ ServerManager.shared.autoconnect { result in
 
 ### Objective-C
 ```objc
-@import AltKit;
+@import SideKit;
 
 [[ALTServerManager sharedManager] startDiscovering];
 
