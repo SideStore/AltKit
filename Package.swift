@@ -30,6 +30,7 @@ let package = Package(
             dependencies: ["CAltKit"],
            linkerSettings: [
                 .linkedFramework("UIKit")
+           ]
          )
     ]
 )
