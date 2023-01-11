@@ -27,6 +27,9 @@ let package = Package(
             dependencies: []),
         .target(
             name: "AltKit",
-            dependencies: ["CAltKit"]),
+            dependencies: ["CAltKit"],
+           linkerSettings: [
+                .linkedFramework("UIKit")
+         )
     ]
 )
