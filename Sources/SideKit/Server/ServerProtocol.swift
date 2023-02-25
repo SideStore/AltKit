@@ -10,7 +10,7 @@ import Foundation
 
 public let ALTServerServiceType = "_altserver._tcp"
 
-protocol ServerMessageProtocol: Codable {
+public protocol ServerMessageProtocol: Codable {
     var version: Int { get }
     var identifier: String { get }
 }
