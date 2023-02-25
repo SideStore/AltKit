@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.15.1)
 
-project(SideKit LANGUAGES C Swift)
-
-add_library(CSideKit
-    Sources/CSideKit/NSError+ALTServerError.h
-    Sources/CSideKit/NSError+ALTServerError.m
-)
+project(SideKit LANGUAGES Swift)
 
 add_library(SideKit
     Sources/SideKit/Extensions/ALTServerError+Conveniences.swift
     Sources/SideKit/Extensions/Result+Conveniences.swift
+
+    Sources/SideKit/Errors/ALTServerError.swift
+    Sources/SideKit/Errors/ALTServerError+NSError.swift
+    Sources/SideKit/Errors/ALTServerConnectionError.swift
+    Sources/SideKit/Errors/ALTServerConnectionError+NSError.swift
 
     Sources/SideKit/Server/Connection.swift
     Sources/SideKit/Server/NetworkConnection.swift

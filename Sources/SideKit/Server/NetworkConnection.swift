@@ -10,51 +10,41 @@ import Foundation
 import Network
 
 @available(iOS 12, tvOS 12, watchOS 5, macOS 10.14, *)
-public class NetworkConnection: NSObject, Connection
-{
+public class NetworkConnection: NSObject, Connection {
     public let nwConnection: NWConnection
-    
-    public init(_ nwConnection: NWConnection)
-    {
+
+    public init(_ nwConnection: NWConnection) {
         self.nwConnection = nwConnection
     }
-    
-    public func send(_ data: Data, completionHandler: @escaping (Result<Void, ALTServerError>) -> Void)
-    {
-        self.nwConnection.send(content: data, completion: .contentProcessed { (error) in
-            if let error = error
-            {
+
+    public func send(_ data: Data, completionHandler: @escaping (Result<Void, ALTServerError>) -> Void) {
+        nwConnection.send(content: data, completion: .contentProcessed { error in
+            if let error = error {
                 completionHandler(.failure(.lostConnection(underlyingError: error)))
-            }
-            else
-            {
+            } else {
                 completionHandler(.success(()))
             }
         })
     }
-    
-    public func receiveData(expectedSize: Int, completionHandler: @escaping (Result<Data, ALTServerError>) -> Void)
-    {
-        self.nwConnection.receive(minimumIncompleteLength: expectedSize, maximumLength: expectedSize) { (data, context, isComplete, error) in
-            switch (data, error)
-            {
-            case (let data?, _): completionHandler(.success(data))
-            case (_, let error?): completionHandler(.failure(.lostConnection(underlyingError: error)))
+
+    public func receiveData(expectedSize: Int, completionHandler: @escaping (Result<Data, ALTServerError>) -> Void) {
+        nwConnection.receive(minimumIncompleteLength: expectedSize, maximumLength: expectedSize) { data, _, _, error in
+            switch (data, error) {
+            case let (data?, _): completionHandler(.success(data))
+            case let (_, error?): completionHandler(.failure(.lostConnection(underlyingError: error)))
             case (nil, nil): completionHandler(.failure(.lostConnection(underlyingError: nil)))
             }
         }
     }
-    
-    public func disconnect()
-    {
-        switch self.nwConnection.state
-        {
+
+    public func disconnect() {
+        switch nwConnection.state {
         case .cancelled, .failed: break
-        default: self.nwConnection.cancel()
+        default: nwConnection.cancel()
         }
     }
-    
+
     override public var description: String {
-        return "\(self.nwConnection.endpoint) (Network)"
+        return "\(nwConnection.endpoint) (Network)"
     }
 }

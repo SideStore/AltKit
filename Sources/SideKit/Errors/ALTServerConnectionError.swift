@@ -1,11 +1,14 @@
 //
 //  ALTServerConnectionError.swift
-//  
+//
 //
 //  Created by Joseph Mattiello on 2/24/23.
 //
 
 import Foundation
+
+public let AltServerInstallationErrorDomain = "com.rileytestut.AltServer.Installation"
+public let AltServerConnectionErrorDomain = "com.rileytestut.AltServer.Connection"
 
 public enum ALTServerConnectionError: Int, LocalizedError {
     case unknown
@@ -16,7 +19,7 @@ public enum ALTServerConnectionError: Int, LocalizedError {
     case ssl
     case timedOut
 
-    public static var errorDomain: String { return "com.rileytestut.AltServer.Connection" }
+    public static var errorDomain: String { AltServerConnectionErrorDomain }
 }
 
 public extension ALTServerConnectionError {
@@ -84,10 +87,9 @@ public extension ALTServerConnectionError {
 
 public extension ALTServerConnectionError {
     var code: Int {
-        return self.rawValue
+        return rawValue
     }
 }
-
 
 extension ALTServerConnectionError: Codable {
     enum CodingKeys: String, CodingKey {

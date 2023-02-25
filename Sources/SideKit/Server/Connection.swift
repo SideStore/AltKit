@@ -9,10 +9,9 @@
 import Foundation
 import Network
 
-public protocol Connection
-{
+public protocol Connection {
     func send(_ data: Data, completionHandler: @escaping (Result<Void, ALTServerError>) -> Void)
     func receiveData(expectedSize: Int, completionHandler: @escaping (Result<Data, ALTServerError>) -> Void)
-    
+
     func disconnect()
 }

@@ -1,0 +1,47 @@
+name: Unit Test
+
+on:
+  pull_request:
+    paths:
+      - "**.swift"
+      - "**.xcodeproj"
+      - "**.m"
+      - "**.h"
+      - "**.podspec"
+      - "Podfile"
+      - "Podfile.lock"
+      - "test.yml"
+jobs:
+  swiftpm:
+    name: Test iOS (swiftpm)
+    runs-on: macOS-latest
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: iOS - Swift PM
+        run: |
+          set -o pipefail && swift test --parallel | xcpretty -c --test --color --report junit --output build/reports/junit.xml --report html --output build/reports/html
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Test Results
+          path: build/reports
+
+      - name: Upload Coverage Results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Coverage Results
+          path: build/coverage
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Logs
+          path: build/logs

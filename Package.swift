@@ -7,7 +7,9 @@ let package = Package(
     name: "SideKit",
     platforms: [
         .iOS(.v11),
-        .tvOS(.v11)
+        .tvOS(.v11),
+        .macCatalyst(.v13),
+        .macOS(.v11)
     ],
     products: [
         .library(
@@ -20,7 +22,7 @@ let package = Package(
         .library(
             name: "SideKit-Dynamic",
             type: .dynamic,
-            targets: ["SideKit"]),
+            targets: ["SideKit"])
     ],
     dependencies: [
     ],
@@ -28,14 +30,15 @@ let package = Package(
         .target(
             name: "SideKit",
             dependencies: [],
-           linkerSettings: [
-                .linkedFramework("UIKit"),
+            linkerSettings: [
+                .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .macCatalyst])),
                 .linkedFramework("Network")
-           ]
-         ),
+            ]
+        ),
         .testTarget(
             name: "SideKitTests",
             dependencies: ["SideKit"]
         )
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )

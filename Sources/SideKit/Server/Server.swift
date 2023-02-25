@@ -9,36 +9,33 @@
 import Foundation
 
 @objc(ALTServer)
-public class Server: NSObject, Identifiable
-{
+public class Server: NSObject, Identifiable {
     public let id: String
     public let service: NetService
-    
+
     public var name: String? {
-        return self.service.hostName
+        return service.hostName
     }
-    
+
     public internal(set) var isPreferred = false
-    
-    public override var hash: Int {
-        return self.id.hashValue ^ self.service.name.hashValue
+
+    override public var hash: Int {
+        return id.hashValue ^ service.name.hashValue
     }
-    
-    init?(service: NetService, txtData: Data)
-    {
+
+    init?(service: NetService, txtData: Data) {
         let txtDictionary = NetService.dictionary(fromTXTRecord: txtData)
         guard let identifierData = txtDictionary["serverID"], let identifier = String(data: identifierData, encoding: .utf8) else { return nil }
-        
-        self.id = identifier
+
+        id = identifier
         self.service = service
-        
+
         super.init()
     }
-    
-    public override func isEqual(_ object: Any?) -> Bool
-    {
+
+    override public func isEqual(_ object: Any?) -> Bool {
         guard let server = object as? Server else { return false }
-        
-        return self.id == server.id && self.service.name == server.service.name // service.name is consistent, and is not the human readable name (hostName).
+
+        return id == server.id && service.name == server.service.name // service.name is consistent, and is not the human readable name (hostName).
     }
 }

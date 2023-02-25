@@ -1,4 +1,0 @@
-module CSideKit {
-    umbrella "./include"
-    export *
-}

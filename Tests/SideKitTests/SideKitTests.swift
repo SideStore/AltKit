@@ -6,8 +6,8 @@
 //  Copyright © 2023 Joseph Mattiello. All rights reserved.
 //
 
-import XCTest
 @testable import SideKit
+import XCTest
 
 class PVAppTests: XCTestCase {
     override func setUp() {

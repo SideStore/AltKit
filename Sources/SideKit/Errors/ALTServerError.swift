@@ -1,6 +1,6 @@
 //
 //  ALTServerError.swift
-//  
+//
 //
 //  Created by Joseph Mattiello on 2/24/23.
 //
@@ -8,8 +8,6 @@
 import Foundation
 
 public let AltServerErrorDomain = "com.rileytestut.AltServer"
-public let AltServerInstallationErrorDomain = "com.rileytestut.AltServer.Installation"
-public let AltServerConnectionErrorDomain = "com.rileytestut.AltServer.Connection"
 
 public let ALTUnderlyingErrorDomainErrorKey = "underlyingErrorDomain"
 public let ALTUnderlyingErrorCodeErrorKey = "underlyingErrorCode"
@@ -21,12 +19,12 @@ public enum ALTServerError: LocalizedError, Codable, RawRepresentable {
     public var rawValue: Int {
         switch self {
         case .underlyingError: return -1
-        default: return self.errorCode
+        default: return errorCode
         }
     }
 
     public typealias RawValue = Int
-    public typealias Code = RawValue
+    public typealias Code = ALTServerError
 
     case underlyingError(domain: String, code: Int)
     case unknown(code: Int = 0)
@@ -46,7 +44,7 @@ public enum ALTServerError: LocalizedError, Codable, RawRepresentable {
     case pluginNotFound
     case profileNotFound
     case appDeletionFailed
-    case requestedAppNotRunning(appName: String, deviceName: String)
+    case requestedAppNotRunning(appName: String = "Unknown", deviceName: String = "UnknownDevice")
 
     enum CodingKeys: String, CodingKey {
         case errorDomain
@@ -54,19 +52,33 @@ public enum ALTServerError: LocalizedError, Codable, RawRepresentable {
         case rawValue
     }
 
+    public static var errorDomain: String { "com.rileytestut.AltServer" }
+
     public var errorDomain: String {
         switch self {
-        case .underlyingError(let domain, _):
+        case let .underlyingError(domain, _):
             return domain
         default:
-            return "com.rileytestut.AltServer"
+            return Self.errorDomain
         }
     }
 
-    public var errorCode: Code {
+    public var code: RawValue { errorCode }
+    public var errorCode: RawValue {
         switch self {
-        case .underlyingError(_, let code):
+        case let .underlyingError(_, code):
             return code
+        case let .unknown(code):
+            return code
+        default:
+            return ALTServerError.code(for: self)
+        }
+    }
+
+    public static func code(for error: ALTServerError) -> RawValue {
+        switch error {
+        case .underlyingError:
+            return -1
         case .connectionFailed:
             return 1
         case .lostConnection:
@@ -101,15 +113,86 @@ public enum ALTServerError: LocalizedError, Codable, RawRepresentable {
             return 16
         case .requestedAppNotRunning:
             return 100
-        case .unknown(let code):
-            return code
+        case .unknown:
+            return 0
         }
     }
 }
 
 public extension ALTServerError {
+    init?(rawValue: Int) {
+        switch rawValue {
+        case -1:
+            self = .underlyingError(domain: "", code: -1)
+        case 0:
+            self = .unknown()
+        case 1:
+            self = .connectionFailed(underlyingError: nil)
+        case ALTServerError.lostConnection().errorCode:
+            self = .lostConnection()
+        case ALTServerError.deviceNotFound.errorCode:
+            self = .deviceNotFound
+        case ALTServerError.deviceWriteFailed.errorCode:
+            self = .deviceWriteFailed
+        case ALTServerError.invalidRequest().errorCode:
+            self = .invalidRequest()
+        case ALTServerError.invalidResponse().errorCode:
+            self = .invalidResponse()
+        case ALTServerError.invalidApp.errorCode:
+            self = .invalidApp
+        case ALTServerError.installationFailed.errorCode:
+            self = .installationFailed
+        case ALTServerError.maximumFreeAppLimitReached.errorCode:
+            self = .maximumFreeAppLimitReached
+        case ALTServerError.unsupportediOSVersion.errorCode:
+            self = .unsupportediOSVersion
+        case ALTServerError.unknownRequest.errorCode:
+            self = .unknownRequest
+        case ALTServerError.unknownResponse.errorCode:
+            self = .unknownResponse
+        case ALTServerError.invalidAnisetteData.errorCode:
+            self = .invalidAnisetteData
+        case ALTServerError.pluginNotFound.errorCode:
+            self = .pluginNotFound
+        case ALTServerError.profileNotFound.errorCode:
+            self = .profileNotFound
+        case ALTServerError.appDeletionFailed.errorCode:
+            self = .appDeletionFailed
+        case ALTServerError.requestedAppNotRunning().errorCode:
+            self = .requestedAppNotRunning()
+        default:
+            return nil
+        }
+    }
+}
 
-    private var userInfo: [String: Any] { (self as NSError).userInfo }
+// extension ALTServerError: CaseIterable {
+//    public static var allCases: [ALTServerError] {
+//        return [.underlyingError(domain: "", code: 0),
+//                .unknown,
+//                .connectionFailed,
+//                .lostConnection,
+//                .deviceNotFound,
+//                .deviceWriteFailed,
+//                .invalidRequest,
+//                .invalidResponse,
+//                .invalidApp,
+//                .installationFailed,
+//                .maximumFreeAppLimitReached,
+//                .unsupportediOSVersion,
+//                .unknownRequest,
+//                .unknownResponse,
+//                .invalidAnisetteData,
+//                .pluginNotFound,
+//                .profileNotFound,
+//                .appDeletionFailed,
+//                .requestedAppNotRunning,
+//                .unknown(code: 0)]
+//    }
+// }
+
+public extension ALTServerError {
+    internal var userInfo: [String: Any] { (self as NSError).userInfo }
 
     private func profileErrorLocalizedDescription(baseDescription: String) -> String {
         let bundleID = userInfo[ALTProvisioningProfileBundleIDErrorKey] as? String ?? NSLocalizedString("this app", comment: "")
@@ -120,7 +203,7 @@ public extension ALTServerError {
 
     var errorDescription: String? {
         switch self {
-        case .underlyingError(let domain, let code):
+        case let .underlyingError(domain, code):
             return String(format: NSLocalizedString("Underlying error (%@, %d)", comment: "ALTServerError"), domain, code)
         case .connectionFailed:
             return NSLocalizedString("Could not connect to AltServer.", comment: "")
@@ -154,9 +237,9 @@ public extension ALTServerError {
             return NSLocalizedString("Could not find profile.", comment: "")
         case .appDeletionFailed:
             return NSLocalizedString("An error occurred while removing the app.", comment: "")
-        case .requestedAppNotRunning(let appName, let deviceName):
+        case let .requestedAppNotRunning(appName, deviceName):
             return String(format: NSLocalizedString("The requested app %@ is not currently running on device %@.", comment: ""), appName, deviceName)
-        case .unknown(let code):
+        case let .unknown(code):
             return String(format: NSLocalizedString("An unknown error occurred with code %d.", comment: ""), code)
         }
     }
@@ -165,7 +248,7 @@ public extension ALTServerError {
 public extension ALTServerError {
     var failureReason: String? {
         switch self {
-        case .underlyingError(let domain, let code):
+        case let .underlyingError(domain, code):
             let underlyingError = NSError(domain: domain, code: code, userInfo: nil)
             if let localizedFailureReason = underlyingError.localizedFailureReason {
                 return localizedFailureReason
@@ -178,11 +261,11 @@ public extension ALTServerError {
             return NSLocalizedString("An unknown error occured.", comment: "Unknown ALTServerError")
 
         case .connectionFailed:
-#if TARGET_OS_OSX
-            return NSLocalizedString("There was an error connecting to the device.", comment: "Failed to connect ALTServerError")
-#else
-            return NSLocalizedString("Could not connect to AltServer.", comment: "Could not connect ALTServerError")
-#endif
+            #if TARGET_OS_OSX
+                return NSLocalizedString("There was an error connecting to the device.", comment: "Failed to connect ALTServerError")
+            #else
+                return NSLocalizedString("Could not connect to AltServer.", comment: "Could not connect ALTServerError")
+            #endif
 
         case .lostConnection:
             return NSLocalizedString("Lost connection to AltServer.", comment: "Lost connection ALTServerError")
@@ -229,9 +312,7 @@ public extension ALTServerError {
         case .appDeletionFailed:
             return NSLocalizedString("An error occured while removing the app.", comment: "App deletion failed ALTServerError")
 
-        case .requestedAppNotRunning(let appName, let deviceName):
-            let appName = appName ?? NSLocalizedString("The requested app", comment: "Requested app not running ALTServerError")
-            let deviceName = deviceName ?? NSLocalizedString("the device", comment: "Requested app not running ALTServerError")
+        case let .requestedAppNotRunning(appName, deviceName):
             return String(format: NSLocalizedString("%@ is not currently running on %@.", comment: "Requested app not running ALTServerError"), appName, deviceName)
         }
     }
@@ -247,7 +328,7 @@ public extension ALTServerError {
         case .maximumFreeAppLimitReached:
             return NSLocalizedString("Make sure “Offload Unused Apps” is disabled in Settings > iTunes & App Stores, then install or delete all offloaded apps.", comment: "ALTServerError recovery suggestion")
         case .requestedAppNotRunning:
-            let deviceName = self.userInfo[ALTDeviceNameErrorKey] as? String ?? NSLocalizedString("your device", comment: "ALTServerError recovery suggestion")
+            let deviceName = userInfo[ALTDeviceNameErrorKey] as? String ?? NSLocalizedString("your device", comment: "ALTServerError recovery suggestion")
             return String(format: NSLocalizedString("Make sure the app is running in the foreground on %@ then try again.", comment: "ALTServerError recovery suggestion"), deviceName)
         default:
             return nil
@@ -255,9 +336,8 @@ public extension ALTServerError {
     }
 }
 
-//extension NSError {
-//    static func setUserInfoValueProvider(forDomain domain: String, provider: ((NSError, String) -> Any?)?) {
-//        let options = [NSUserInfoProviderErrorKey: provider as Any]
-//        self.setUserInfoValueProvider(forDomain: domain, provider: options)
-//    }
-//}
+public extension NSError {
+    convenience init(altServerError code: ALTServerError, userInfo: [String: Any]? = nil) {
+        self.init(domain: AltServerErrorDomain, code: code.errorCode, userInfo: userInfo)
+    }
+}
