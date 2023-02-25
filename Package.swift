@@ -4,33 +4,38 @@
 import PackageDescription
 
 let package = Package(
-    name: "AltKit",
+    name: "SideKit",
     platforms: [
         .iOS(.v11),
         .tvOS(.v11)
     ],
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "AltKit",
-            targets: ["AltKit"]),
+            name: "SideKit",
+            targets: ["SideKit"]),
+        .library(
+            name: "SideKit-Static",
+            type: .static,
+            targets: ["SideKit"]),
+        .library(
+            name: "SideKit-Dynamic",
+            type: .dynamic,
+            targets: ["SideKit"]),
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "CAltKit",
-            dependencies: []),
-        .target(
-            name: "AltKit",
-            dependencies: ["CAltKit"],
+            name: "SideKit",
+            dependencies: [],
            linkerSettings: [
-                .linkedFramework("UIKit")
+                .linkedFramework("UIKit"),
+                .linkedFramework("Network")
            ]
-         )
+         ),
+        .testTarget(
+            name: "SideKitTests",
+            dependencies: ["SideKit"]
+        )
     ]
 )

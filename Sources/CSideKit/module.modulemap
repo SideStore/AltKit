@@ -1,4 +1,4 @@
-module CAltKit {
+module CSideKit {
     umbrella "./include"
     export *
 }

@@ -8,15 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSErrorDomain const AltServerErrorDomain;
-extern NSErrorDomain const AltServerInstallationErrorDomain;
-extern NSErrorDomain const AltServerConnectionErrorDomain;
+NSErrorDomain const AltServerErrorDomain = @"com.rileytestut.AltServer";
+NSErrorDomain const AltServerInstallationErrorDomain = @"com.rileytestut.AltServer.Installation";
+NSErrorDomain const AltServerConnectionErrorDomain = @"com.rileytestut.AltServer.Connection";
 
-extern NSErrorUserInfoKey const ALTUnderlyingErrorDomainErrorKey;
-extern NSErrorUserInfoKey const ALTUnderlyingErrorCodeErrorKey;
-extern NSErrorUserInfoKey const ALTProvisioningProfileBundleIDErrorKey;
-extern NSErrorUserInfoKey const ALTAppNameErrorKey;
-extern NSErrorUserInfoKey const ALTDeviceNameErrorKey;
+NSErrorUserInfoKey const ALTUnderlyingErrorDomainErrorKey = @"underlyingErrorDomain";
+NSErrorUserInfoKey const ALTUnderlyingErrorCodeErrorKey = @"underlyingErrorCode";
+NSErrorUserInfoKey const ALTProvisioningProfileBundleIDErrorKey = @"bundleIdentifier";
+NSErrorUserInfoKey const ALTAppNameErrorKey = @"appName";
+NSErrorUserInfoKey const ALTDeviceNameErrorKey = @"deviceName";
 
 typedef NS_ERROR_ENUM(AltServerErrorDomain, ALTServerError)
 {

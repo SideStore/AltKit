@@ -67,7 +67,7 @@ public extension ServerConnection
                     case .failure(let error): finish(.failure(error))
                     case .success(.error(let response)): finish(.failure(response.error))
                     case .success(.enableUnsignedCodeExecution): finish(.success(()))
-                    case .success: finish(.failure(ALTServerError(.unknownResponse)))
+                    case .success: finish(.failure(ALTServerError.unknownResponse))
                     }
                 }
             }
@@ -143,7 +143,7 @@ private extension ServerConnection
         catch
         {
             print("Invalid request.", error)
-            completionHandler(.failure(ALTServerError(.invalidRequest)))
+            completionHandler(.failure(ALTServerError.invalidRequest(underlyingError: error)))
         }
     }
     

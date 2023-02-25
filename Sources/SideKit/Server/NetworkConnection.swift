@@ -24,7 +24,7 @@ public class NetworkConnection: NSObject, Connection
         self.nwConnection.send(content: data, completion: .contentProcessed { (error) in
             if let error = error
             {
-                completionHandler(.failure(.init(.lostConnection, underlyingError: error)))
+                completionHandler(.failure(.lostConnection(underlyingError: error)))
             }
             else
             {
@@ -39,8 +39,8 @@ public class NetworkConnection: NSObject, Connection
             switch (data, error)
             {
             case (let data?, _): completionHandler(.success(data))
-            case (_, let error?): completionHandler(.failure(.init(.lostConnection, underlyingError: error)))
-            case (nil, nil): completionHandler(.failure(ALTServerError(.lostConnection)))
+            case (_, let error?): completionHandler(.failure(.lostConnection(underlyingError: error)))
+            case (nil, nil): completionHandler(.failure(.lostConnection(underlyingError: nil)))
             }
         }
     }
