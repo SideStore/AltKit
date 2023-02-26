@@ -1,0 +1,105 @@
+name: Create Release
+
+# Create XCFramework when a version is tagged
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: macos-latest
+    steps:
+
+    # Checkout the repository
+    - uses: actions/checkout@v2
+
+    # Build the XCFramework
+    - name: Create XCFramework
+      uses: unsignedapps/swift-create-xcframework@v2
+
+    # Create a zip file of the XCFramework
+    - name: Create ZIP
+      run: zip -r ${{ steps.create_xcframework.outputs.xcframework_name }} ${{ steps.create_xcframework.outputs.xcframework_path }}
+
+    # Create a changelog
+    - name: Create Changelog
+      uses: unsignedapps/swift-create-changelog@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    # Create a release
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changelog:
+          ${{ steps.changelog.outputs.changelog }}
+        draft: true
+        prerelease: ${{ github.tag_name.contains('beta') }}
+
+    # Upload the XCFramework ZIP to the release
+    - name: Upload XCFramework
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.create_zip.outputs.xcframework_path }}
+        asset_name: ${{ steps.create_zip.outputs.xcframework_name }}
+        asset_content_type: application/zip
+
+    # Upload the changelog to the release
+    - name: Upload Changelog
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.changelog.outputs.changelog_path }}
+        asset_name: Changelog.md
+        asset_content_type: text/markdown
+
+    # Notify Discord
+    - name: Discord Notify
+      uses: stegzilla/discord-notify@v4
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: New SideKit release created
+        message: |
+          A new release has been created: ${{ github.ref }}
+          Changelog:
+          ${{ steps.changelog.outputs.changelog }}
+          XCFramework Zip:
+          ${{ steps.create_zip.outputs.xcframework_name }}
+        include_image: true
+        username: GitHub Actions
+        avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+        color: 0x2cbe4e
+
+    # # Notify Discord
+    # - name: Notify Discord
+    #   uses: Ilshidur/action-discord@v2
+    #   with:
+    #     args: |
+    #       A new release has been created: ${{ github.ref }}
+    #       Changelog:
+    #       ${{ steps.changelog.outputs.changelog }}
+    #       XCFramework Zip:
+    #       ${{ steps.create_zip.outputs.xcframework_name }}
+    #   env:
+    #     DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+    # with:
+    #   webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    #   message: |
+    #     A new release has been created: ${{ github.ref }}
+    #     Changelog:
+    #     ${{ steps.changelog.outputs.changelog }}
+    #   username: GitHub Actions
+    #   avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+    #   color: 0x2cbe4e

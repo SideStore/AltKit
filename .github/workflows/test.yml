@@ -1,47 +1,72 @@
-name: Unit Test
+name: Unit Test and Build
 
 on:
   pull_request:
     paths:
-      - "**.swift"
-      - "**.xcodeproj"
-      - "**.m"
-      - "**.h"
-      - "**.podspec"
-      - "Podfile"
-      - "Podfile.lock"
-      - "test.yml"
+    - "**.swift"
+    - "**.xcodeproj"
+    - "**.m"
+    - "**.h"
+    - "**.podspec"
+    - "Podfile"
+    - "Podfile.lock"
+    - "test.yml"
 jobs:
   swiftpm:
     name: Test iOS (swiftpm)
-    runs-on: macOS-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+    runs-on: macos-latest
+    # env:
+    #   DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
 
-      - name: iOS - Swift PM
-        run: |
-          set -o pipefail && swift test --parallel | xcpretty -c --test --color --report junit --output build/reports/junit.xml --report html --output build/reports/html
+    # Checkout the repository
+    - name: Checkout
+      uses: actions/checkout@master
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: Test Results
-          path: build/reports
+    # Swift test
+    - name: iOS - Swift PM
+      run: |
+        set -o pipefail && swift test --parallel | xcpretty -c --test --color --report junit --output build/reports/junit.xml --report html --output build/reports/html
 
-      - name: Upload Coverage Results
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: Coverage Results
-          path: build/coverage
+    # Upload Test Results
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: Test Results
+        path: build/reports
 
-      - name: Upload Logs
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: Logs
-          path: build/logs
+    # Upload Coverage Results
+    - name: Upload Coverage Results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: Coverage Results
+        path: build/coverage
+
+    # Upload the logs
+    - name: Upload Logs
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: Logs
+        path: build/logs
+
+    # Build the XCFramework
+    - name: Create XCFramework
+      uses: unsignedapps/swift-create-xcframework@v2
+
+    - name: Create ZIP
+      # Create a zip file of the XCFramework
+      run: zip -r ${{ steps.create_xcframework.outputs.xcframework_name }} ${{ steps.create_xcframework.outputs.xcframework_path }}
+
+    # Attach build artifachts to the workflow run
+    - name: Attach build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Build Artifacts
+        path: |
+          ${{ steps.create_zip.outputs.xcframework_path }}
+          ${{ steps.create_zip.outputs.xcframework_name }}
+          # ${{ steps.create_xcframework.outputs.xcframework_path }}
+          # ${{ steps.create_xcframework.outputs.xcframework_name }}
