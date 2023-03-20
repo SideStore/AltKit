@@ -1,6 +1,10 @@
 # SideKit
 
-SideKit allows apps to communicate with [SideServer mobile](https://github.com/SideStore/em_proxy) on **any** WiFi network and enable various features such as JIT compilation.
+_SideKit allows apps to communicate with [SideServer mobile](https://github.com/SideStore/em_proxy) on **any** WiFi network and enable various features such as JIT compilation._
+
+[![Unit Test](https://github.com/SideStore/SideKit/actions/workflows/test.yml/badge.svg)](https://github.com/SideStore/SideKit/actions/workflows/test.yml)
+
+![Alt](https://repobeats.axiom.co/api/embed/c3dd1299b57265454681dab327b40e2dd52322e1.svg "Repobeats analytics image")
 
 ## Installation
 
@@ -36,13 +40,15 @@ Steps:
 If you're using `add_compile_options` or `target_compile_options` and the Swift compiler complains about the option not being supported, it's possible to use CMake's generator expressions to limit the options to non-Swift source files.
 
 Example:
-```
+
+```cmake
 add_compile_options($<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fPIC>)
 ```
 
 ## Usage
 
 ### Swift
+
 ```swift
 import SideKit
 
@@ -69,6 +75,7 @@ ServerManager.shared.autoconnect { result in
 ```
 
 ### Objective-C
+
 ```objc
 @import SideKit;
 
